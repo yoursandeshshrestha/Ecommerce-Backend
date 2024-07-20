@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
-    name: {
+    username: {
       type: String,
       required: true,
       trim: true,
@@ -20,14 +20,20 @@ const userSchema = new mongoose.Schema(
     address: {
       type: String,
       trim: true,
+      default: "",
     },
     phone: {
       type: String,
       trim: true,
+      default: "",
     },
-    isAdmin: {
-      type: Boolean,
-      default: false,
+    cart: {
+      type: Array,
+      default: [],
+    },
+    bookmark: {
+      type: Array,
+      default: [],
     },
   },
   {
