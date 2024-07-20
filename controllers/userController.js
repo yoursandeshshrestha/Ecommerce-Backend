@@ -7,9 +7,9 @@ const userModel = require("../models/userModel");
 // ==== UNPROTECTED
 const registerUser = async (req, res, next) => {
   try {
-    const { name, email, password } = req.body;
+    const { username, email, password } = req.body;
 
-    if (!name || !email || !password) {
+    if (!username || !email || !password) {
       return res.status(402).json({ message: "Fill in all fields" });
     }
 
@@ -28,11 +28,11 @@ const registerUser = async (req, res, next) => {
     const hashPassword = await bcrypt.hash(password, salt);
 
     const newUser = await userModel.create({
-      name,
+      username,
       email: newEmail,
       password: hashPassword,
     });
-    res.status(201).json(`New user ${newUser.email} is created`);
+    res.status(201).send("Registration Successful");
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -60,7 +60,7 @@ const loginUser = async (req, res, next) => {
       res.status(402).json({ message: "Invalid credentials" });
     }
 
-    const { _id: id, name: userName, email: userEmail } = user;
+    const { _id: id, username: userName, email: userEmail } = user;
     const secretKey = process.env.JWT_SECRET;
     const token = jwt.sign({ id, userName, userEmail }, secretKey, {
       expiresIn: "1d",
