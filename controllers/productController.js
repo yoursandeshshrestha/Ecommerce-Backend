@@ -19,8 +19,40 @@ const createProduct = async (req, res, next) => {
     });
     res.status(201).json({ message: "Product create successfully", product });
   } catch (error) {
-    res.status(402).json(error);
+    res.status(402).json("Error :", error.message);
   }
 };
 
-module.exports = { createProduct };
+const getProducts = async (req, res, next) => {
+  try {
+    const { category } = req.query;
+    const filter = {};
+
+    if (category) {
+      filter.category = category;
+    }
+
+    const products = await productModel.find(filter).sort({ updatedAt: -1 });
+    if (!products) {
+      return res.status(402).json({ message: "No products found" });
+    }
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const getSingleProduct = async (req, res, next) => {
+  try {
+    const productID = req.params.id;
+    const Product = await productModel.findById(productID);
+    if (!Product) {
+      res.status(402).json({ message: "No product found" });
+    }
+    res.status(201).json(Product);
+  } catch (error) {
+    res.status(402).json("Error :", error.message);
+  }
+};
+
+module.exports = { createProduct, getProducts, getSingleProduct };
