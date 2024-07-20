@@ -18,11 +18,9 @@ const productSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      required: true,
     },
     brand: {
       type: String,
-      required: true,
     },
     stock: {
       type: Number,
@@ -31,7 +29,14 @@ const productSchema = new mongoose.Schema(
     },
     imageUrl: {
       type: String,
-      required: true,
+    },
+    productOwner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: [true, "Creator is required"],
+    },
+    productOwnerEmail: {
+      type: String,
     },
   },
   {
