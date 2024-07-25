@@ -2,56 +2,67 @@ const productModel = require("../models/productModel");
 
 const createProduct = async (req, res, next) => {
   try {
-    const { name, description, price, category, brand, stock } = req.body;
-    if ((!name, !description, !price, !stock)) {
-      return res.status(402).json({ message: "Please fill in all fields" });
+    const { name, description, price, category, brand, stocks } = req.body;
+    if (!name || !description || !price || !stocks) {
+      return res
+        .status(400)
+        .json({ message: "Please fill in all required fields" });
     }
-    // req.user is coming from auth
+
     const product = await productModel.create({
       name,
       description,
       price,
       category,
       brand,
-      stock,
-      productOwner: req.user.id,
-      productOwnerEmail: req.user.userEmail,
+      stocks,
     });
-    res.status(201).json({ message: "Product create successfully", product });
+
+    res.status(201).json({ message: "Product created successfully", product });
   } catch (error) {
-    res.status(402).json("Error :", error.message);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
 const getProducts = async (req, res, next) => {
   try {
-    const { category } = req.query;
+    const { category, keyword } = req.query;
     const filter = {};
 
+    // Search by category
     if (category) {
       filter.category = category;
     }
 
-    const products = await productModel.find(filter).sort({ updatedAt: -1 });
-    if (!products) {
-      return res.status(402).json({ message: "No products found" });
+    // Search by keyword
+    if (keyword) {
+      filter.$text = { $search: keyword };
     }
+
+    const products = await productModel.find(filter).sort({ updatedAt: -1 });
+
+    if (!products.length) {
+      return res.status(404).json({ message: "No products found" });
+    }
+
     res.status(200).json(products);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
 const getSingleProduct = async (req, res, next) => {
   try {
     const productID = req.params.id;
-    const Product = await productModel.findById(productID);
-    if (!Product) {
-      res.status(402).json({ message: "No product found" });
+    const product = await productModel.findById(productID);
+
+    if (!product) {
+      return res.status(404).json({ message: "No product found" });
     }
-    res.status(201).json(Product);
+
+    res.status(200).json(product);
   } catch (error) {
-    res.status(402).json("Error :", error.message);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
