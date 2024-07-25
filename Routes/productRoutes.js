@@ -7,7 +7,7 @@ const {
   getSingleProduct,
 } = require("../controllers/productController");
 
-router.post("/create", authMiddleware, createProduct);
+router.post("/create", createProduct);
 router.get("/", getProducts);
 router.get("/:id", getSingleProduct);
 
