@@ -1,80 +1,44 @@
 const mongoose = require("mongoose");
 
-const productSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, "Please enter product name"],
-    trim: true,
-  },
-  description: {
-    type: String,
-    required: [true, "Please enter description name"],
-    trim: true,
-  },
-  price: {
-    type: Number,
-    required: [true, "Please enter price"],
-    min: 0,
-    maxLength: [8, "Price cannot exceed 8 characters"],
-  },
-  category: {
-    type: String,
-    required: [true, "Please enter category"],
-    trim: true,
-  },
-  rating: {
-    type: Number,
-    default: 0,
-  },
-  images: [
-    {
-      public_id: {
-        type: String,
-        required: true,
-      },
-      url: {
-        type: String,
-        required: true,
-      },
+const productSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: [true, "Product name is required"],
     },
-  ],
-  stocks: {
-    type: Number,
-    required: [true, "Please enter product stock"],
-    maxLength: [4, "Stock cannot exceed 4 characters"],
-  },
-  numOfReviews: {
-    type: Number,
-    default: 0,
-  },
-  reviews: [
-    {
-      name: {
-        type: String,
-        required: true,
-      },
-      rating: {
-        type: Number,
-        required: true,
-      },
-      comment: {
-        type: String,
-        required: true,
-      },
+    description: {
+      type: String,
+      required: [true, "Product description is required"],
     },
-  ],
-  createdAt: {
-    type: Date,
-    default: Date.now,
+    brand: {
+      type: String,
+      required: [true, "Product brand is required"],
+    },
+    category: {
+      type: [String],
+      default: ["Uncategorized"],
+      required: true,
+    },
+    price: {
+      type: Number,
+      required: [true, "Product price is required"],
+      default: 0,
+      min: [0, "Product price cannot be negative"],
+    },
+    stock: {
+      type: Number,
+      required: [true, "Product stock is required"],
+      default: 0,
+      min: [0, "Product stock cannot be negative"],
+    },
+    image: {
+      type: String,
+      required: [true, "Product image is required"],
+    },
   },
-  updatedAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
+  { timestamps: true }
+);
 
-productSchema.index({ name: "text" });
+const Product = mongoose.model("Product", productSchema);
 
-const productModel = mongoose.model("Product", productSchema);
-
-module.exports = productModel;
+module.exports = Product;
