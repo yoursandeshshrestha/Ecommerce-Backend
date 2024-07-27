@@ -1,6 +1,8 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const userModel = require("../models/userModel");
+const generateToken = require("../Utils/generateToken");
+const cookie = require("cookies");
 
 // ==== Register User
 // ==== POST : api/users/register
@@ -32,6 +34,7 @@ const registerUser = async (req, res, next) => {
       email: newEmail,
       password: hashPassword,
     });
+    const token = generateToken(res, newUser);
     res.status(201).send("Registration Successful");
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -59,16 +62,28 @@ const loginUser = async (req, res, next) => {
     if (!comparePass) {
       res.status(402).json({ message: "Invalid credentials" });
     }
-
-    const { _id: id, username: userName, email: userEmail } = user;
-    const secretKey = process.env.JWT_SECRET;
-    const token = jwt.sign({ id, userName, userEmail }, secretKey, {
-      expiresIn: "1d",
-    });
-    res.status(201).json({ token, id, userName, userEmail });
+    generateToken(res, user);
+    const { id, username, email: userEmail } = user;
+    res.status(201).json({ id, username, userEmail });
   } catch (error) {
     res.status(402).json({ message: "Login failed, Please try again later" });
   }
 };
 
-module.exports = { registerUser, loginUser };
+// ==== Logout User
+// ==== POST : api/users/logour
+// ==== UNPROTECTED
+const logoutUser = async (req, res) => {
+  try {
+    res.cookie("token", "", {
+      httpOnly: true,
+      expires: new Date(0),
+    });
+
+    res.status(200).json({ message: "Logout Successful" });
+  } catch (error) {
+    res.status(402).json(error.message);
+  }
+};
+
+module.exports = { registerUser, loginUser, logoutUser };
