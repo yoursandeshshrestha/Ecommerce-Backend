@@ -1,23 +1,28 @@
 const jwt = require("jsonwebtoken");
+const userModel = require("../models/userModel");
 
-const authMiddleware = async (req, res, next) => {
-  const auth = req.headers.authorization;
+const Authenticate = async (req, res, next) => {
+  const token = req.cookies.token;
 
-  if (auth && auth.startsWith("Bearer ")) {
-    const token = auth.split(" ")[1];
-
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-      if (err) {
-        return res.status(403).json({ message: "Unauthorized: invalid token" });
-      }
-      req.user = user;
-      console.log({ message: "From authMiddleware" });
-      console.log(req.user);
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = await userModel.findById(decoded.id).select("-password");
       next();
-    });
+    } catch (error) {
+      res.status(401).json({ message: "Not Authorized, Token failed" });
+    }
   } else {
-    return res.status(401).json({ message: "Unauthorized: no token provided" });
+    res.status(401).json({ message: "Not Authorized, No Token" });
   }
 };
 
-module.exports = authMiddleware;
+const AuthorizedAdmin = (req, res, next) => {
+  if (req.user && req.user.isAdmin) {
+    next();
+  } else {
+    res.status(401).json({ message: "Not Authorized as an admin" });
+  }
+};
+
+module.exports = { Authenticate, AuthorizedAdmin };
