@@ -17,23 +17,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    address: {
-      type: String,
-      trim: true,
-      default: "",
-    },
-    phone: {
-      type: String,
-      trim: true,
-      default: "",
-    },
-    cart: {
-      type: Array,
-      default: [],
-    },
-    bookmark: {
-      type: Array,
-      default: [],
+    isAdmin: {
+      type: Boolean,
+      required: true,
+      default: false,
     },
   },
   {
